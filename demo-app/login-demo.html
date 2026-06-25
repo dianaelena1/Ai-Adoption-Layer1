@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>msg Demo Bank - Login</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Segoe UI, Arial, sans-serif;
+      background: #0f2a52;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      width: 360px;
+      padding: 32px;
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.3);
+    }
+    h1 { font-size: 20px; color: #0f2a52; margin: 0 0 4px; }
+    .sub { color: #667; font-size: 13px; margin: 0 0 24px; }
+    label { display: block; font-size: 13px; color: #334; margin: 14px 0 4px; }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    input:focus { outline: 2px solid #2d6cdf; border-color: #2d6cdf; }
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 11px;
+      background: #2d6cdf;
+      color: #fff;
+      border: 0;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    button:hover { background: #1f55bf; }
+    .msg { margin-top: 16px; font-size: 13px; padding: 10px; border-radius: 6px; display: none; }
+    .msg.error { background: #fdecec; color: #b3261e; display: block; }
+    .msg.success { background: #e7f6ec; color: #1e7e34; display: block; }
+    .field-error { color: #b3261e; font-size: 12px; margin-top: 4px; display: none; }
+    .hint { margin-top: 22px; font-size: 11px; color: #99a; line-height: 1.5; border-top: 1px solid #eee; padding-top: 12px; }
+    .dashboard { text-align: center; }
+    .dashboard h2 { color: #1e7e34; }
+  </style>
+</head>
+<body>
+  <div class="card" id="login-card">
+    <h1>msg Demo Bank</h1>
+    <p class="sub">Autentificare cont</p>
+
+    <form id="login-form" novalidate>
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" data-testid="login-email" placeholder="nume@msg.group" />
+      <div class="field-error" id="email-error" data-testid="email-error">Emailul este obligatoriu</div>
+
+      <label for="password">Parola</label>
+      <input type="password" id="password" name="password" data-testid="login-password" placeholder="Parola" />
+      <div class="field-error" id="password-error" data-testid="password-error">Parola este obligatorie</div>
+
+      <button type="submit" id="login-button" data-testid="login-submit" class="btn-primary">Login</button>
+
+      <div class="msg" id="form-message" data-testid="form-message" role="alert"></div>
+    </form>
+
+    <div class="hint">
+      <strong>Conturi de test:</strong><br />
+      Valid: user@msg.group / Test1234<br />
+      Cont blocat: locked@msg.group (orice parola)<br />
+      Orice alta combinatie = parola gresita
+    </div>
+  </div>
+
+  <div class="card dashboard" id="dashboard" data-testid="dashboard" style="display:none;">
+    <h2>Bine ai venit!</h2>
+    <p class="sub">Te-ai autentificat cu succes in msg Demo Bank.</p>
+    <button id="logout-button" data-testid="logout-button">Logout</button>
+  </div>
+
+  <script>
+    var VALID_EMAIL = "user@msg.group";
+    var VALID_PASSWORD = "Test1234";
+    var LOCKED_EMAIL = "locked@msg.group";
+
+    var form = document.getElementById("login-form");
+    var emailInput = document.getElementById("email");
+    var passwordInput = document.getElementById("password");
+    var emailError = document.getElementById("email-error");
+    var passwordError = document.getElementById("password-error");
+    var formMessage = document.getElementById("form-message");
+    var loginCard = document.getElementById("login-card");
+    var dashboard = document.getElementById("dashboard");
+
+    function clearMessages() {
+      emailError.style.display = "none";
+      passwordError.style.display = "none";
+      formMessage.className = "msg";
+      formMessage.textContent = "";
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      clearMessages();
+
+      var email = emailInput.value.trim();
+      var password = passwordInput.value;
+      var hasError = false;
+
+      if (email === "") { emailError.style.display = "block"; hasError = true; }
+      if (password === "") { passwordError.style.display = "block"; hasError = true; }
+      if (hasError) { return; }
+
+      if (email === LOCKED_EMAIL) {
+        formMessage.className = "msg error";
+        formMessage.textContent = "Cont blocat. Contactati administratorul.";
+        return;
+      }
+
+      if (email === VALID_EMAIL && password === VALID_PASSWORD) {
+        loginCard.style.display = "none";
+        dashboard.style.display = "block";
+        return;
+      }
+
+      formMessage.className = "msg error";
+      formMessage.textContent = "Email sau parola gresita.";
+    });
+
+    document.getElementById("logout-button").addEventListener("click", function () {
+      dashboard.style.display = "none";
+      loginCard.style.display = "block";
+      form.reset();
+      clearMessages();
+    });
+  </script>
+</body>
+</html>
